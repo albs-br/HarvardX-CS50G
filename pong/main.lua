@@ -94,8 +94,9 @@ function love.load()
     player1 = Paddle(10, 30, 5, 20)
     player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
-    -- variable of player 1 control (human ou AI)
+    -- variable of player 1 and 2 control (human ou AI)
     player1Control = "AI"
+    player2Control = "human"
 
 
     -- place a ball in the middle of the screen
@@ -230,6 +231,8 @@ function love.update(dt)
     end
 
 
+    AI_OFFSET = 3 -- small offset to avoid paddle "shaking"
+
     if player1Control == 'human' then
         --
         -- paddles can move no matter what state we're in
@@ -245,7 +248,6 @@ function love.update(dt)
     else
         -- AI for player 1
         -- (compares the center of the paddle with the center of the ball)
-        AI_OFFSET = 3 -- small offset to avoid paddle "shaking"
         if (player1.y + 10 - AI_OFFSET) > (ball.y + 2) then
             player1.dy = -PADDLE_SPEED
         elseif (player1.y + 10 + AI_OFFSET) < (ball.y + 2) then
@@ -255,13 +257,25 @@ function love.update(dt)
         end
     end
 
-    -- player 2
-    if love.keyboard.isDown('up') then
-        player2.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('down') then
-        player2.dy = PADDLE_SPEED
+    if player2Control == 'human' then
+        -- player 2
+        if love.keyboard.isDown('up') then
+            player2.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('down') then
+            player2.dy = PADDLE_SPEED
+        else
+            player2.dy = 0
+        end
     else
-        player2.dy = 0
+        -- AI for player 2
+        -- (compares the center of the paddle with the center of the ball)
+        if (player2.y + 10 - AI_OFFSET) > (ball.y + 2) then
+            player2.dy = -PADDLE_SPEED
+        elseif (player2.y + 10 + AI_OFFSET) < (ball.y + 2) then
+            player2.dy = PADDLE_SPEED
+        else
+            player2.dy = 0
+        end
     end
 
     -- update our ball based on its DX and DY only if we're in play state;
@@ -316,6 +330,12 @@ function love.keypressed(key)
         else
             player1Control = 'human'
         end
+    elseif key == '2' then
+        if player2Control == 'human' then
+            player2Control = 'AI'
+        else
+            player2Control = 'human'
+        end
     end
 
 end
@@ -358,6 +378,12 @@ function love.draw()
     love.graphics.setFont(smallFont)
     love.graphics.printf('Player 1: ' .. player1Control, 10, 30, VIRTUAL_WIDTH, 'left')
     love.graphics.printf('Press 1 to switch between AI and human', 10, 40, VIRTUAL_WIDTH, 'left')
+    --love.graphics.setColor(255, 255, 255, 255)
+
+    love.graphics.setColor(196, 0, 196, 255)
+    love.graphics.setFont(smallFont)
+    love.graphics.printf('Player 2: ' .. player2Control, 0, VIRTUAL_HEIGHT - 30, VIRTUAL_WIDTH, 'right')
+    love.graphics.printf('Press 2 to switch between AI and human', 0, VIRTUAL_HEIGHT - 20, VIRTUAL_WIDTH, 'right')
     love.graphics.setColor(255, 255, 255, 255)
 
     -- show the score before ball is rendered so it can move over the text
